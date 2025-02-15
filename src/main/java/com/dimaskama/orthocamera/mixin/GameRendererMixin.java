@@ -1,6 +1,6 @@
 package com.dimaskama.orthocamera.mixin;
 
-import com.dimaskama.orthocamera.client.OrthoCamera;
+import com.dimaskama.orthocamera.client.OrthoCameraMod;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.sugar.Local;
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -25,8 +25,8 @@ abstract class GameRendererMixin {
             index = 2
     )
     private Matrix4f orthoFrustumProjMat(Matrix4f projMat) {
-        if (OrthoCamera.isEnabled()) {
-            return OrthoCamera.createOrthoMatrix(1.0F, 20.0F);
+        if (OrthoCameraMod.CONFIG.enabled) {
+            return OrthoCameraMod.createOrthoMatrix(1.0F, 20.0F);
         }
         return projMat;
     }
@@ -40,8 +40,8 @@ abstract class GameRendererMixin {
             index = 6
     )
     private Matrix4f orthoProjMat(Matrix4f projMat, @Local(argsOnly = true) DeltaTracker tickCounter) {
-        if (OrthoCamera.isEnabled()) {
-            Matrix4f mat = OrthoCamera.createOrthoMatrix(tickCounter.getGameTimeDeltaPartialTick(false), 0.0F);
+        if (OrthoCameraMod.CONFIG.enabled) {
+            Matrix4f mat = OrthoCameraMod.createOrthoMatrix(tickCounter.getGameTimeDeltaPartialTick(false), 0.0F);
             RenderSystem.setProjectionMatrix(mat, VertexSorting.ORTHOGRAPHIC_Z);
             return mat;
         }
@@ -56,11 +56,11 @@ abstract class GameRendererMixin {
             )
     )
     private Quaternionf modifyRotation(Quaternionf original, @Local(argsOnly = true) DeltaTracker tickCounter) {
-        if (OrthoCamera.isEnabled() && OrthoCamera.CONFIG.fixed) {
+        if (OrthoCameraMod.CONFIG.enabled && OrthoCameraMod.CONFIG.fixed) {
             float delta = tickCounter.getGameTimeDeltaPartialTick(false);
             return original.rotationXYZ(
-                    OrthoCamera.CONFIG.getFixedPitch(delta) * Mth.DEG_TO_RAD,
-                    OrthoCamera.CONFIG.getFixedYaw(delta) * Mth.DEG_TO_RAD - Mth.PI,
+                    OrthoCameraMod.CONFIG.getFixedPitch(delta) * Mth.DEG_TO_RAD,
+                    OrthoCameraMod.CONFIG.getFixedYaw(delta) * Mth.DEG_TO_RAD - Mth.PI,
                     0.0F
             );
         }

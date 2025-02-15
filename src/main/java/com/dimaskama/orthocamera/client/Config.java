@@ -6,21 +6,21 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.neoforged.neoforge.common.ModConfigSpec;
 
-public class ModConfig {
+public class Config {
     public static final float MIN_SCALE = 0.01F;
     public static final float MAX_SCALE = 10000.0F;
 
     private final ModConfigSpec.BooleanValue ENABLED;
     private final ModConfigSpec.BooleanValue SAVE_ENABLED_STATE;
-    private final ModConfigSpec.ConfigValue<Float> SCALE_X;
-    private final ModConfigSpec.ConfigValue<Float> SCALE_Y;
-    private final ModConfigSpec.ConfigValue<Float> MIN_DISTANCE;
-    private final ModConfigSpec.ConfigValue<Float> MAX_DISTANCE;
+    private final ModConfigSpec.DoubleValue SCALE_X;
+    private final ModConfigSpec.DoubleValue SCALE_Y;
+    private final ModConfigSpec.DoubleValue MIN_DISTANCE;
+    private final ModConfigSpec.DoubleValue MAX_DISTANCE;
     private final ModConfigSpec.BooleanValue FIXED;
-    private final ModConfigSpec.ConfigValue<Float> FIXED_YAW;
-    private final ModConfigSpec.ConfigValue<Float> FIXED_PITCH;
-    private final ModConfigSpec.ConfigValue<Float> FIXED_ROTATE_SPEED_X;
-    private final ModConfigSpec.ConfigValue<Float> FIXED_ROTATE_SPEED_Y;
+    private final ModConfigSpec.DoubleValue FIXED_YAW;
+    private final ModConfigSpec.DoubleValue FIXED_PITCH;
+    private final ModConfigSpec.DoubleValue FIXED_ROTATE_SPEED_X;
+    private final ModConfigSpec.DoubleValue FIXED_ROTATE_SPEED_Y;
     private final ModConfigSpec.BooleanValue AUTO_THIRD_PERSON;
 
     private transient boolean dirty;
@@ -43,28 +43,28 @@ public class ModConfig {
     public float fixed_rotate_speed_y = 3.0F;
     public boolean auto_third_person = true;
 
-    public ModConfig(ModConfigSpec.Builder builder) {
+    public Config(ModConfigSpec.Builder builder) {
         ENABLED = builder.define("enabled", false);
 
         SAVE_ENABLED_STATE = builder.define("save_enabled_state", false);
 
-        SCALE_X = builder.defineInRange("scale_x", 3f, MIN_SCALE, MAX_SCALE, Float.class);
+        SCALE_X = builder.defineInRange("scale_x", 3, MIN_SCALE, MAX_SCALE);
 
-        SCALE_Y = builder.defineInRange("scale_y", 3f, MIN_SCALE, MAX_SCALE, Float.class);
+        SCALE_Y = builder.defineInRange("scale_y", 3, MIN_SCALE, MAX_SCALE);
 
-        MIN_DISTANCE = builder.defineInRange("min_distance", -1000f, -1000f, 0f, Float.class);
+        MIN_DISTANCE = builder.defineInRange("min_distance", -1000f, -1000, 0);
 
-        MAX_DISTANCE = builder.defineInRange("max_distance", 1000f, 0f, 1000f, Float.class);
+        MAX_DISTANCE = builder.defineInRange("max_distance", 1000f, 0, 1000);
 
         FIXED = builder.define("fixed", false);
 
-        FIXED_YAW = builder.defineInRange("fixed_yaw", 0f, 0f, 360f, Float.class);
+        FIXED_YAW = builder.defineInRange("fixed_yaw", 0f, 0, 360);
 
-        FIXED_PITCH = builder.defineInRange("fixed_pitch", 0f, -90f, 90f, Float.class);
+        FIXED_PITCH = builder.defineInRange("fixed_pitch", 0f, -90, 90);
 
-        FIXED_ROTATE_SPEED_X = builder.defineInRange("fixed_rotate_speed_x", 0f, 0f, 90f, Float.class);
+        FIXED_ROTATE_SPEED_X = builder.defineInRange("fixed_rotate_speed_x", 3f, 0, 90);
 
-        FIXED_ROTATE_SPEED_Y = builder.defineInRange("fixed_rotate_speed_y", 0f, 0f, 90f, Float.class);
+        FIXED_ROTATE_SPEED_Y = builder.defineInRange("fixed_rotate_speed_y", 3f, 0, 90);
 
         AUTO_THIRD_PERSON = builder.define("auto_third_person", true);
     }
@@ -72,16 +72,20 @@ public class ModConfig {
     void load() {
         enabled = ENABLED.get();
         save_enabled_state = SAVE_ENABLED_STATE.get();
-        scale_x = SCALE_X.get();
-        scale_y = SCALE_Y.get();
-        min_distance = MIN_DISTANCE.get();
-        max_distance = MAX_DISTANCE.get();
+        scale_x = SCALE_X.get().floatValue();
+        scale_y = SCALE_Y.get().floatValue();
+        min_distance = MIN_DISTANCE.get().floatValue();
+        max_distance = MAX_DISTANCE.get().floatValue();
         fixed = FIXED.get();
-        fixed_yaw = FIXED_YAW.get();
-        fixed_pitch = FIXED_PITCH.get();
-        fixed_rotate_speed_x = FIXED_ROTATE_SPEED_X.get();
-        fixed_rotate_speed_y = FIXED_ROTATE_SPEED_Y.get();
+        fixed_yaw = FIXED_YAW.get().floatValue();
+        fixed_pitch = FIXED_PITCH.get().floatValue();
+        fixed_rotate_speed_x = FIXED_ROTATE_SPEED_X.get().floatValue();
+        fixed_rotate_speed_y = FIXED_ROTATE_SPEED_Y.get().floatValue();
         auto_third_person = AUTO_THIRD_PERSON.get();
+    }
+
+    void save() {
+        // TODO
     }
 
     public void setDirty(boolean dirty) {
