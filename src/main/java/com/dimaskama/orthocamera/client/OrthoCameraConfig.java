@@ -6,29 +6,30 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.neoforged.neoforge.common.ModConfigSpec;
 
-public class Config {
-    public static final float MIN_SCALE = 0.01F;
-    public static final float MAX_SCALE = 10000.0F;
+public class OrthoCameraConfig {
+    protected static final double MIN_SCALE_D = 0.01d;
+    protected static final float MIN_SCALE_F = (float) MIN_SCALE_D;
+    protected static final float MAX_SCALE_F = 10000.0f;
 
-    private final ModConfigSpec.BooleanValue ENABLED;
-    private final ModConfigSpec.BooleanValue SAVE_ENABLED_STATE;
-    private final ModConfigSpec.DoubleValue SCALE_X;
-    private final ModConfigSpec.DoubleValue SCALE_Y;
-    private final ModConfigSpec.DoubleValue MIN_DISTANCE;
-    private final ModConfigSpec.DoubleValue MAX_DISTANCE;
-    private final ModConfigSpec.BooleanValue FIXED;
-    private final ModConfigSpec.DoubleValue FIXED_YAW;
-    private final ModConfigSpec.DoubleValue FIXED_PITCH;
-    private final ModConfigSpec.DoubleValue FIXED_ROTATE_SPEED_X;
-    private final ModConfigSpec.DoubleValue FIXED_ROTATE_SPEED_Y;
-    private final ModConfigSpec.BooleanValue AUTO_THIRD_PERSON;
+    protected final ModConfigSpec.BooleanValue ENABLED;
+    protected final ModConfigSpec.BooleanValue SAVE_ENABLED_STATE;
+    protected final ModConfigSpec.DoubleValue SCALE_X;
+    protected final ModConfigSpec.DoubleValue SCALE_Y;
+    protected final ModConfigSpec.DoubleValue MIN_DISTANCE;
+    protected final ModConfigSpec.DoubleValue MAX_DISTANCE;
+    protected final ModConfigSpec.BooleanValue FIXED;
+    protected final ModConfigSpec.DoubleValue FIXED_YAW;
+    protected final ModConfigSpec.DoubleValue FIXED_PITCH;
+    protected final ModConfigSpec.DoubleValue FIXED_ROTATE_SPEED_X;
+    protected final ModConfigSpec.DoubleValue FIXED_ROTATE_SPEED_Y;
+    protected final ModConfigSpec.BooleanValue AUTO_THIRD_PERSON;
 
-    private transient boolean dirty;
-    private transient float prevScaleX;
-    private transient float prevScaleY;
-    private transient float prevFixedYaw;
-    private transient float prevFixedPitch;
-    private transient CameraType prevPerspective;
+    protected transient boolean dirty;
+    protected transient float prevScaleX;
+    protected transient float prevScaleY;
+    protected transient float prevFixedYaw;
+    protected transient float prevFixedPitch;
+    protected transient CameraType prevPerspective;
 
     public boolean enabled = false;
     public boolean save_enabled_state;
@@ -43,30 +44,42 @@ public class Config {
     public float fixed_rotate_speed_y = 3.0F;
     public boolean auto_third_person = true;
 
-    public Config(ModConfigSpec.Builder builder) {
-        ENABLED = builder.define("enabled", false);
+    public OrthoCameraConfig(ModConfigSpec.Builder builder) {
+        ENABLED = builder.translation("orthocamera.config.enabled")
+                .define("enabled", false);
 
-        SAVE_ENABLED_STATE = builder.define("save_enabled_state", false);
+        SAVE_ENABLED_STATE = builder.translation("orthocamera.config.save_enabled_state")
+                .define("save_enabled_state", false);
 
-        SCALE_X = builder.defineInRange("scale_x", 3, MIN_SCALE, MAX_SCALE);
+        SCALE_X = builder.translation("orthocamera.config.scale_x")
+                .defineInRange("scale_x", 3, MIN_SCALE_D, MAX_SCALE_F);
 
-        SCALE_Y = builder.defineInRange("scale_y", 3, MIN_SCALE, MAX_SCALE);
+        SCALE_Y = builder.translation("orthocamera.config.scale_y")
+                .defineInRange("scale_y", 3, MIN_SCALE_D, MAX_SCALE_F);
 
-        MIN_DISTANCE = builder.defineInRange("min_distance", -1000f, -1000, 0);
+        MIN_DISTANCE = builder.translation("orthocamera.config.min_distance")
+                .defineInRange("min_distance", -1000f, -1000, 0);
 
-        MAX_DISTANCE = builder.defineInRange("max_distance", 1000f, 0, 1000);
+        MAX_DISTANCE = builder.translation("orthocamera.config.max_distance")
+                .defineInRange("max_distance", 1000f, 0, 1000);
 
-        FIXED = builder.define("fixed", false);
+        FIXED = builder.translation("orthocamera.config.fixed")
+                .define("fixed", false);
 
-        FIXED_YAW = builder.defineInRange("fixed_yaw", 0f, 0, 360);
+        FIXED_YAW = builder.translation("orthocamera.config.fixed_yaw")
+                .defineInRange("fixed_yaw", 0f, 0, 360);
 
-        FIXED_PITCH = builder.defineInRange("fixed_pitch", 0f, -90, 90);
+        FIXED_PITCH = builder.translation("orthocamera.config.fixed_pitch")
+                .defineInRange("fixed_pitch", 0f, -90, 90);
 
-        FIXED_ROTATE_SPEED_X = builder.defineInRange("fixed_rotate_speed_x", 3f, 0, 90);
+        FIXED_ROTATE_SPEED_X = builder.translation("orthocamera.config.fixed_rotate_speed_y")
+                .defineInRange("fixed_rotate_speed_x", 3f, 0, 90);
 
-        FIXED_ROTATE_SPEED_Y = builder.defineInRange("fixed_rotate_speed_y", 3f, 0, 90);
+        FIXED_ROTATE_SPEED_Y = builder.translation("orthocamera.config.fixed_rotate_speed_x")
+                .defineInRange("fixed_rotate_speed_y", 3f, 0, 90);
 
-        AUTO_THIRD_PERSON = builder.define("auto_third_person", true);
+        AUTO_THIRD_PERSON = builder.translation("orthocamera.config.auto_third_person")
+                .define("auto_third_person", true);
     }
 
     void load() {
@@ -120,7 +133,7 @@ public class Config {
     }
 
     public void setScaleX(float scale) {
-        scale = Mth.clamp(scale, MIN_SCALE, MAX_SCALE);
+        scale = Mth.clamp(scale, MIN_SCALE_F, MAX_SCALE_F);
         if (scale != scale_x) {
             scale_x = scale;
             setDirty(true);
@@ -128,7 +141,7 @@ public class Config {
     }
 
     public void setScaleY(float scale) {
-        scale = Mth.clamp(scale, MIN_SCALE, MAX_SCALE);
+        scale = Mth.clamp(scale, MIN_SCALE_F, MAX_SCALE_F);
         if (scale != scale_y) {
             scale_y = scale;
             setDirty(true);

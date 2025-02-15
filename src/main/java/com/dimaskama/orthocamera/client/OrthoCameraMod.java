@@ -28,10 +28,10 @@ public class OrthoCameraMod {
     public static final String MOD_ID = "orthocamera";
     private static final Logger LOGGER = LogUtils.getLogger();
 
-    public static final Config CONFIG;
+    public static final OrthoCameraConfig CONFIG;
     public static final ModConfigSpec CONFIG_SPEC;
     static {
-        Pair<Config, ModConfigSpec> pair = new ModConfigSpec.Builder().configure(Config::new);    // TODO this is gross, switch to how I did it in Stackcraft
+        Pair<OrthoCameraConfig, ModConfigSpec> pair = new ModConfigSpec.Builder().configure(OrthoCameraConfig::new);    // TODO this is gross, switch to how I did it in Stackcraft
         CONFIG = pair.getLeft();
         CONFIG_SPEC = pair.getRight();
     }
