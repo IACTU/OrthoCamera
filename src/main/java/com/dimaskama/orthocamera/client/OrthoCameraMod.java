@@ -31,20 +31,20 @@ public class OrthoCameraMod {
     public static final OrthoCameraConfig CONFIG;
     public static final ModConfigSpec CONFIG_SPEC;
     static {
-        Pair<OrthoCameraConfig, ModConfigSpec> pair = new ModConfigSpec.Builder().configure(OrthoCameraConfig::new);    // TODO this is gross, switch to how I did it in Stackcraft
+        Pair<OrthoCameraConfig, ModConfigSpec> pair = new ModConfigSpec.Builder().configure(OrthoCameraConfig::new);
         CONFIG = pair.getLeft();
         CONFIG_SPEC = pair.getRight();
     }
 
-    private static final KeyMapping TOGGLE_KEY = createKeybinding("toggle", GLFW.GLFW_KEY_KP_4);
-    private static final KeyMapping SCALE_INCREASE_KEY = createKeybinding("scale_increase", GLFW.GLFW_KEY_KP_SUBTRACT);
-    private static final KeyMapping SCALE_DECREASE_KEY = createKeybinding("scale_decrease", GLFW.GLFW_KEY_KP_ADD);
-    private static final KeyMapping OPEN_OPTIONS_KEY = createKeybinding("options", -1);
-    private static final KeyMapping FIX_CAMERA_KEY = createKeybinding("fix_camera", GLFW.GLFW_KEY_KP_MULTIPLY);
-    private static final KeyMapping FIXED_CAMERA_ROTATE_UP_KEY = createKeybinding("fixed_camera_rotate_up", -1);
-    private static final KeyMapping FIXED_CAMERA_ROTATE_DOWN_KEY = createKeybinding("fixed_camera_rotate_down", -1);
-    private static final KeyMapping FIXED_CAMERA_ROTATE_LEFT_KEY = createKeybinding("fixed_camera_rotate_left", -1);
-    private static final KeyMapping FIXED_CAMERA_ROTATE_RIGHT_KEY = createKeybinding("fixed_camera_rotate_right", -1);
+    private static final KeyMapping TOGGLE_KEY = createKeyMapping("toggle", GLFW.GLFW_KEY_KP_4);
+    private static final KeyMapping SCALE_INCREASE_KEY = createKeyMapping("scale_increase", GLFW.GLFW_KEY_KP_SUBTRACT);
+    private static final KeyMapping SCALE_DECREASE_KEY = createKeyMapping("scale_decrease", GLFW.GLFW_KEY_KP_ADD);
+    private static final KeyMapping OPEN_OPTIONS_KEY = createKeyMapping("options", InputConstants.UNKNOWN.getValue());
+    private static final KeyMapping FIX_CAMERA_KEY = createKeyMapping("fix_camera", GLFW.GLFW_KEY_KP_MULTIPLY);
+    private static final KeyMapping FIXED_CAMERA_ROTATE_UP_KEY = createKeyMapping("fixed_camera_rotate_up", InputConstants.UNKNOWN.getValue());
+    private static final KeyMapping FIXED_CAMERA_ROTATE_DOWN_KEY = createKeyMapping("fixed_camera_rotate_down", InputConstants.UNKNOWN.getValue());
+    private static final KeyMapping FIXED_CAMERA_ROTATE_LEFT_KEY = createKeyMapping("fixed_camera_rotate_left", InputConstants.UNKNOWN.getValue());
+    private static final KeyMapping FIXED_CAMERA_ROTATE_RIGHT_KEY = createKeyMapping("fixed_camera_rotate_right", InputConstants.UNKNOWN.getValue());
     private static final Component ENABLED_TEXT = Component.translatable("orthocamera.enabled");
     private static final Component DISABLED_TEXT = Component.translatable("orthocamera.disabled");
     private static final Component FIXED_TEXT = Component.translatable("orthocamera.fixed");
@@ -70,8 +70,14 @@ public class OrthoCameraMod {
     }
 
     @SubscribeEvent
+    public void onClientTickPost(ClientTickEvent.Post event) {
+        // TODO do keymapping things
+    }
+
+    @SubscribeEvent
     public void onLoggingOut(ClientPlayerNetworkEvent.LoggingOut event) {   // TODO need to save config if dirty on client disconnect/world close
-        CONFIG.save();
+        // TODO this seems to be the right event, but this triggered even when joining a world. Maybe that's ok if we only save if dirty
+        CONFIG.saveIfDirty();
     }
 
 //    @Override
@@ -174,12 +180,12 @@ public class OrthoCameraMod {
         );
     }
 
-    private static KeyMapping createKeybinding(String name, int key) {  // TODO when some (all?) of the keys are pressed, need to save the new config values on disconnect
-        return new KeyMapping(  // TODO confirm this works/is ok
-                "orthocamera.key." + name,
+    private static KeyMapping createKeyMapping(String name, int key) {  // TODO when some (all?) of the keys are pressed, need to save the new config values on disconnect
+        return new KeyMapping(
+                "key." + MOD_ID + "." + name,
                 InputConstants.Type.KEYSYM,
                 key,
-                MOD_ID
+                "key.categories." + MOD_ID
         );
     }
 }

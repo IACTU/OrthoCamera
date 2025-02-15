@@ -82,7 +82,7 @@ public class OrthoCameraConfig {
                 .define("auto_third_person", true);
     }
 
-    void load() {
+    public void load() {
         enabled = ENABLED.get();
         save_enabled_state = SAVE_ENABLED_STATE.get();
         scale_x = SCALE_X.get().floatValue();
@@ -97,8 +97,14 @@ public class OrthoCameraConfig {
         auto_third_person = AUTO_THIRD_PERSON.get();
     }
 
-    void save() {
+    public void save() {
         // TODO
+    }
+
+    public void saveIfDirty() {
+        if(dirty) {
+            save();
+        }
     }
 
     public void setDirty(boolean dirty) {
