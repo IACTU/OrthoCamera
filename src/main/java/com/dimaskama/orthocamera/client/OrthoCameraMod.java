@@ -14,10 +14,12 @@ import net.neoforged.fml.config.ModConfig;
 import net.neoforged.fml.event.config.ModConfigEvent;
 import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
+import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent;
 import net.neoforged.neoforge.client.gui.ConfigurationScreen;
 import net.neoforged.neoforge.client.gui.IConfigScreenFactory;
 import net.neoforged.neoforge.common.ModConfigSpec;
 import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.common.util.Lazy;
 import org.apache.commons.lang3.tuple.Pair;
 import org.joml.Matrix4f;
 import org.lwjgl.glfw.GLFW;
@@ -36,15 +38,25 @@ public class OrthoCameraMod {
         CONFIG_SPEC = pair.getRight();
     }
 
-    private static final KeyMapping TOGGLE_KEY = createKeyMapping("toggle", GLFW.GLFW_KEY_KP_4);
-    private static final KeyMapping SCALE_INCREASE_KEY = createKeyMapping("scale_increase", GLFW.GLFW_KEY_KP_SUBTRACT);
-    private static final KeyMapping SCALE_DECREASE_KEY = createKeyMapping("scale_decrease", GLFW.GLFW_KEY_KP_ADD);
-    private static final KeyMapping OPEN_OPTIONS_KEY = createKeyMapping("options", InputConstants.UNKNOWN.getValue());
-    private static final KeyMapping FIX_CAMERA_KEY = createKeyMapping("fix_camera", GLFW.GLFW_KEY_KP_MULTIPLY);
-    private static final KeyMapping FIXED_CAMERA_ROTATE_UP_KEY = createKeyMapping("fixed_camera_rotate_up", InputConstants.UNKNOWN.getValue());
-    private static final KeyMapping FIXED_CAMERA_ROTATE_DOWN_KEY = createKeyMapping("fixed_camera_rotate_down", InputConstants.UNKNOWN.getValue());
-    private static final KeyMapping FIXED_CAMERA_ROTATE_LEFT_KEY = createKeyMapping("fixed_camera_rotate_left", InputConstants.UNKNOWN.getValue());
-    private static final KeyMapping FIXED_CAMERA_ROTATE_RIGHT_KEY = createKeyMapping("fixed_camera_rotate_right", InputConstants.UNKNOWN.getValue());
+    private static final Lazy<KeyMapping> TOGGLE_KEY = createLazyKeyMapping("toggle",
+            GLFW.GLFW_KEY_KP_4);
+    private static final Lazy<KeyMapping> SCALE_INCREASE_KEY = createLazyKeyMapping("scale_increase",
+            GLFW.GLFW_KEY_KP_SUBTRACT);
+    private static final Lazy<KeyMapping> SCALE_DECREASE_KEY = createLazyKeyMapping("scale_decrease",
+            GLFW.GLFW_KEY_KP_ADD);
+    private static final Lazy<KeyMapping> OPEN_OPTIONS_KEY = createLazyKeyMapping("options",
+            InputConstants.UNKNOWN.getValue());
+    private static final Lazy<KeyMapping> FIX_CAMERA_KEY = createLazyKeyMapping("fix_camera",
+            GLFW.GLFW_KEY_KP_MULTIPLY);
+    private static final Lazy<KeyMapping> FIXED_CAMERA_ROTATE_UP_KEY = createLazyKeyMapping("fixed_camera_rotate_up",
+            InputConstants.UNKNOWN.getValue());
+    private static final Lazy<KeyMapping> FIXED_CAMERA_ROTATE_DOWN_KEY = createLazyKeyMapping("fixed_camera_rotate_down",
+            InputConstants.UNKNOWN.getValue());
+    private static final Lazy<KeyMapping> FIXED_CAMERA_ROTATE_LEFT_KEY = createLazyKeyMapping("fixed_camera_rotate_left",
+            InputConstants.UNKNOWN.getValue());
+    private static final Lazy<KeyMapping> FIXED_CAMERA_ROTATE_RIGHT_KEY = createLazyKeyMapping("fixed_camera_rotate_right",
+            InputConstants.UNKNOWN.getValue());
+
     private static final Component ENABLED_TEXT = Component.translatable("orthocamera.enabled");
     private static final Component DISABLED_TEXT = Component.translatable("orthocamera.disabled");
     private static final Component FIXED_TEXT = Component.translatable("orthocamera.fixed");
@@ -72,6 +84,19 @@ public class OrthoCameraMod {
     @SubscribeEvent
     public void onClientTickPost(ClientTickEvent.Post event) {
         // TODO do keymapping things
+    }
+
+    @SubscribeEvent
+    public void registerBindings(RegisterKeyMappingsEvent event) {
+        event.register(TOGGLE_KEY.get());
+        event.register(SCALE_INCREASE_KEY.get());
+        event.register(SCALE_DECREASE_KEY.get());
+        event.register(OPEN_OPTIONS_KEY.get());
+        event.register(FIX_CAMERA_KEY.get());
+        event.register(FIXED_CAMERA_ROTATE_UP_KEY.get());
+        event.register(FIXED_CAMERA_ROTATE_DOWN_KEY.get());
+        event.register(FIXED_CAMERA_ROTATE_LEFT_KEY.get());
+        event.register(FIXED_CAMERA_ROTATE_RIGHT_KEY.get());
     }
 
     @SubscribeEvent
@@ -187,5 +212,9 @@ public class OrthoCameraMod {
                 key,
                 "key.categories." + MOD_ID
         );
+    }
+
+    private static Lazy<KeyMapping> createLazyKeyMapping(String name, int key) {
+        return Lazy.of(() -> createKeyMapping(name, key));
     }
 }
