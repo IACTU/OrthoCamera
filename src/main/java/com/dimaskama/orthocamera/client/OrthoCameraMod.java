@@ -65,6 +65,7 @@ public class OrthoCameraMod {
 
     public OrthoCameraMod(IEventBus modEventBus, ModContainer modContainer) {
         modEventBus.addListener(this::onModConfig);
+        modEventBus.addListener(this::onRegisterKeyMappings);
 
         NeoForge.EVENT_BUS.register(this);
 
@@ -76,18 +77,7 @@ public class OrthoCameraMod {
         CONFIG.load();
     }
 
-    @SubscribeEvent
-    public void onClientTickPre(ClientTickEvent.Pre event) {
-        CONFIG.tick();
-    }
-
-    @SubscribeEvent
-    public void onClientTickPost(ClientTickEvent.Post event) {
-        // TODO do keymapping things
-    }
-
-    @SubscribeEvent
-    public void registerBindings(RegisterKeyMappingsEvent event) {
+    public void onRegisterKeyMappings(RegisterKeyMappingsEvent event) {
         event.register(TOGGLE_KEY.get());
         event.register(SCALE_INCREASE_KEY.get());
         event.register(SCALE_DECREASE_KEY.get());
@@ -97,6 +87,16 @@ public class OrthoCameraMod {
         event.register(FIXED_CAMERA_ROTATE_DOWN_KEY.get());
         event.register(FIXED_CAMERA_ROTATE_LEFT_KEY.get());
         event.register(FIXED_CAMERA_ROTATE_RIGHT_KEY.get());
+    }
+
+    @SubscribeEvent
+    public void onClientTickPre(ClientTickEvent.Pre event) {
+        CONFIG.tick();
+    }
+
+    @SubscribeEvent
+    public void onClientTickPost(ClientTickEvent.Post event) {
+        // TODO do keymapping things
     }
 
     @SubscribeEvent
