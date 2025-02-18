@@ -4,11 +4,13 @@ import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.logging.LogUtils;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.ModContainer;
+import net.neoforged.fml.ModList;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.config.ModConfig;
 import net.neoforged.fml.event.config.ModConfigEvent;
@@ -17,6 +19,7 @@ import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent;
 import net.neoforged.neoforge.client.gui.ConfigurationScreen;
 import net.neoforged.neoforge.client.gui.IConfigScreenFactory;
+import net.neoforged.neoforge.client.settings.KeyConflictContext;
 import net.neoforged.neoforge.common.ModConfigSpec;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.common.util.Lazy;
@@ -24,6 +27,8 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.joml.Matrix4f;
 import org.lwjgl.glfw.GLFW;
 import org.slf4j.Logger;
+
+import java.util.Optional;
 
 @Mod(value = OrthoCameraMod.MOD_ID, dist = Dist.CLIENT)
 public class OrthoCameraMod {
@@ -39,7 +44,7 @@ public class OrthoCameraMod {
     }
 
     private static final Lazy<KeyMapping> TOGGLE_KEY = createLazyKeyMapping("toggle",
-            GLFW.GLFW_KEY_KP_4);    // TODO bad key to use, doesn't seem to work
+            GLFW.GLFW_KEY_KP_4);
     private static final Lazy<KeyMapping> SCALE_INCREASE_KEY = createLazyKeyMapping("scale_increase",
             GLFW.GLFW_KEY_KP_SUBTRACT);
     private static final Lazy<KeyMapping> SCALE_DECREASE_KEY = createLazyKeyMapping("scale_decrease",
@@ -97,7 +102,7 @@ public class OrthoCameraMod {
 
     @SubscribeEvent
     public void onClientTickPost(ClientTickEvent.Post event) {
-        // TODO do keymapping things
+        handleInput();
     }
 
     @SubscribeEvent
@@ -108,76 +113,83 @@ public class OrthoCameraMod {
 
 //    @Override
 //    public void onInitializeClient() {
-//        ClientTickEvents.END_CLIENT_TICK.register(this::handleInput);
 //        ClientLifecycleEvents.CLIENT_STOPPING.register(this::onClientStopping);
 //    }
 //
-//    private void handleInput(Minecraft minecraft) {
-//        boolean messageSent = false;
-//        while (TOGGLE_KEY.wasPressed()) {
-//            CONFIG.toggle();
-//            minecraft.getMessageHandler().onGameMessage(
-//                    CONFIG.enabled ? ENABLED_TEXT : DISABLED_TEXT,
-//                    true
-//            );
-//            messageSent = true;
-//        }
-//        boolean on = CONFIG.enabled;
-//        boolean scaleChanged = false;
-//        while (SCALE_INCREASE_KEY.wasPressed()) {
-//            if (on) {
-//                CONFIG.setScaleX(CONFIG.scale_x * SCALE_MUL_INTERVAL);
-//                CONFIG.setScaleY(CONFIG.scale_y * SCALE_MUL_INTERVAL);
-//                CONFIG.setDirty(true);
-//                scaleChanged = true;
-//            }
-//        }
-//        while (SCALE_DECREASE_KEY.wasPressed()) {
-//            if (on) {
-//                CONFIG.setScaleX(CONFIG.scale_x / SCALE_MUL_INTERVAL);
-//                CONFIG.setScaleY(CONFIG.scale_y / SCALE_MUL_INTERVAL);
-//                CONFIG.setDirty(true);
-//                scaleChanged = true;
-//            }
-//        }
-//        if (scaleChanged && !messageSent) {
-//            minecraft.getMessageHandler().onGameMessage(
-//                    Component.translatable(
-//                            "orthocamera.scale",
-//                            String.format("%.1f", CONFIG.scale_x), String.format("%.1f", CONFIG.scale_y)
-//                    ),
-//                    true
-//            );
-//            messageSent = true;
-//        }
-//        boolean fixPressed = false;
-//        while (FIX_CAMERA_KEY.wasPressed()) {
-//            fixPressed = true;
-//            CONFIG.setFixed(!CONFIG.fixed);
-//        }
-//        if (!messageSent && fixPressed) {
-//            minecraft.getMessageHandler().onGameMessage(CONFIG.fixed ? FIXED_TEXT : UNFIXED_TEXT, true);
-//        }
-//        if (FIXED_CAMERA_ROTATE_LEFT_KEY.isPressed()) {
-//            CONFIG.setFixedYaw(CONFIG.fixed_yaw + CONFIG.fixed_rotate_speed_y);
-//        }
-//        if (FIXED_CAMERA_ROTATE_RIGHT_KEY.isPressed()) {
-//            CONFIG.setFixedYaw(CONFIG.fixed_yaw - CONFIG.fixed_rotate_speed_y);
-//        }
-//        if (FIXED_CAMERA_ROTATE_UP_KEY.isPressed()) {
-//            CONFIG.setFixedPitch(CONFIG.fixed_pitch + CONFIG.fixed_rotate_speed_x);
-//        }
-//        if (FIXED_CAMERA_ROTATE_DOWN_KEY.isPressed()) {
-//            CONFIG.setFixedPitch(CONFIG.fixed_pitch - CONFIG.fixed_rotate_speed_x);
-//        }
-//        boolean openScreen = false;
-//        while (OPEN_OPTIONS_KEY.wasPressed()) {
-//            openScreen = true;
-//        }
-//        if (openScreen) {
-//            minecraft.setScreen(new ModConfigScreen(null));
-//        }
-//    }
+    private void handleInput() {
+        Minecraft instance = Minecraft.getInstance();
+        boolean messageSent = false;
+        while (TOGGLE_KEY.get().consumeClick()) {
+            CONFIG.toggle();
+            instance.getChatListener().handleSystemMessage(
+                    CONFIG.enabled ? ENABLED_TEXT : DISABLED_TEXT,
+                    true
+            );
+            messageSent = true;
+        }
+        boolean on = CONFIG.enabled;
+        boolean scaleChanged = false;
+        while (SCALE_INCREASE_KEY.get().consumeClick()) {
+            if (on) {
+                CONFIG.setScaleX(CONFIG.scale_x * SCALE_MUL_INTERVAL);
+                CONFIG.setScaleY(CONFIG.scale_y * SCALE_MUL_INTERVAL);
+                CONFIG.setDirty(true);
+                scaleChanged = true;
+            }
+        }
+        while (SCALE_DECREASE_KEY.get().consumeClick()) {
+            if (on) {
+                CONFIG.setScaleX(CONFIG.scale_x / SCALE_MUL_INTERVAL);
+                CONFIG.setScaleY(CONFIG.scale_y / SCALE_MUL_INTERVAL);
+                CONFIG.setDirty(true);
+                scaleChanged = true;
+            }
+        }
+        if (scaleChanged && !messageSent) {
+            instance.getChatListener().handleSystemMessage(
+                    Component.translatable(
+                            "orthocamera.scale",
+                            String.format("%.1f", CONFIG.scale_x), String.format("%.1f", CONFIG.scale_y)
+                    ),
+                    true
+            );
+            messageSent = true;
+        }
+        boolean fixPressed = false;
+        while (FIX_CAMERA_KEY.get().consumeClick()) {
+            fixPressed = true;
+            CONFIG.setFixed(!CONFIG.fixed);
+        }
+        if (!messageSent && fixPressed) {
+            instance.getChatListener().handleSystemMessage(CONFIG.fixed ? FIXED_TEXT : UNFIXED_TEXT, true);
+        }
+        if (FIXED_CAMERA_ROTATE_LEFT_KEY.get().consumeClick()) {
+            CONFIG.setFixedYaw(CONFIG.fixed_yaw + CONFIG.fixed_rotate_speed_y);
+        }
+        if (FIXED_CAMERA_ROTATE_RIGHT_KEY.get().consumeClick()) {
+            CONFIG.setFixedYaw(CONFIG.fixed_yaw - CONFIG.fixed_rotate_speed_y);
+        }
+        if (FIXED_CAMERA_ROTATE_UP_KEY.get().consumeClick()) {
+            CONFIG.setFixedPitch(CONFIG.fixed_pitch + CONFIG.fixed_rotate_speed_x);
+        }
+        if (FIXED_CAMERA_ROTATE_DOWN_KEY.get().consumeClick()) {
+            CONFIG.setFixedPitch(CONFIG.fixed_pitch - CONFIG.fixed_rotate_speed_x);
+        }
+        boolean openScreen = false;
+        while (OPEN_OPTIONS_KEY.get().consumeClick()) {
+            openScreen = true;
+        }
+        if (openScreen) {
+            Optional<? extends ModContainer> optionalOrthoCameraModContainer = ModList.get().getModContainerById(MOD_ID);
+            if (optionalOrthoCameraModContainer.isPresent()) {
+                Optional<IConfigScreenFactory> optionalConfigScreenFactory = optionalOrthoCameraModContainer.get().getCustomExtension(IConfigScreenFactory.class);
+                if (optionalConfigScreenFactory.isPresent()) {
+                    Screen configScreen = optionalConfigScreenFactory.get().createScreen(optionalOrthoCameraModContainer.get(), instance.screen);
+                    instance.setScreen(configScreen);   // TODO for some reason when you close the screen, your mouse input isn't captured automatically again
+                }
+            }
+        }
+    }
 //
 //    private void onClientStopping(Minecraft minecraft) {
 //        if (CONFIG.isDirty()) {
@@ -200,6 +212,7 @@ public class OrthoCameraMod {
     private static KeyMapping createKeyMapping(String name, int key) {  // TODO when some (all?) of the keys are pressed, need to save the new config values on disconnect
         return new KeyMapping(
                 "key." + MOD_ID + "." + name,
+                KeyConflictContext.IN_GAME,
                 InputConstants.Type.KEYSYM,
                 key,
                 "key.categories." + MOD_ID

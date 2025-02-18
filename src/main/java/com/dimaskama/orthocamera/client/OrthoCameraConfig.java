@@ -31,6 +31,7 @@ public class OrthoCameraConfig {
     protected transient float prevFixedPitch;
     protected transient CameraType prevPerspective;
 
+    // TODO make these protected and add getters instead
     public boolean enabled = false;
     public boolean save_enabled_state;
     public float scale_x = 3.0F;
