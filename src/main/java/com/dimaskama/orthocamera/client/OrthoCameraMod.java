@@ -39,7 +39,7 @@ public class OrthoCameraMod {
     }
 
     private static final Lazy<KeyMapping> TOGGLE_KEY = createLazyKeyMapping("toggle",
-            GLFW.GLFW_KEY_KP_4);
+            GLFW.GLFW_KEY_KP_4);    // TODO bad key to use, doesn't seem to work
     private static final Lazy<KeyMapping> SCALE_INCREASE_KEY = createLazyKeyMapping("scale_increase",
             GLFW.GLFW_KEY_KP_SUBTRACT);
     private static final Lazy<KeyMapping> SCALE_DECREASE_KEY = createLazyKeyMapping("scale_decrease",
@@ -69,11 +69,12 @@ public class OrthoCameraMod {
 
         NeoForge.EVENT_BUS.register(this);
 
-        modContainer.registerConfig(ModConfig.Type.CLIENT, CONFIG_SPEC);
+        modContainer.registerConfig(ModConfig.Type.CLIENT, CONFIG_SPEC);    // TODO would be nice if values changed in real time when changing them in config screen
         modContainer.registerExtensionPoint(IConfigScreenFactory.class, ConfigurationScreen::new);
     }
 
     public void onModConfig(ModConfigEvent event) {
+        CONFIG.saveIfDirty();
         CONFIG.load();
     }
 
@@ -107,15 +108,6 @@ public class OrthoCameraMod {
 
 //    @Override
 //    public void onInitializeClient() {
-//        KeyBindingHelper.registerKeyBinding(TOGGLE_KEY);
-//        KeyBindingHelper.registerKeyBinding(SCALE_INCREASE_KEY);
-//        KeyBindingHelper.registerKeyBinding(SCALE_DECREASE_KEY);
-//        KeyBindingHelper.registerKeyBinding(OPEN_OPTIONS_KEY);
-//        KeyBindingHelper.registerKeyBinding(FIX_CAMERA_KEY);
-//        KeyBindingHelper.registerKeyBinding(FIXED_CAMERA_ROTATE_UP_KEY);
-//        KeyBindingHelper.registerKeyBinding(FIXED_CAMERA_ROTATE_DOWN_KEY);
-//        KeyBindingHelper.registerKeyBinding(FIXED_CAMERA_ROTATE_LEFT_KEY);
-//        KeyBindingHelper.registerKeyBinding(FIXED_CAMERA_ROTATE_RIGHT_KEY);
 //        ClientTickEvents.END_CLIENT_TICK.register(this::handleInput);
 //        ClientLifecycleEvents.CLIENT_STOPPING.register(this::onClientStopping);
 //    }

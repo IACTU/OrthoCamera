@@ -102,7 +102,7 @@ public class OrthoCameraConfig {
     }
 
     public void saveIfDirty() {
-        if(dirty) {
+        if (dirty) {
             save();
         }
     }
