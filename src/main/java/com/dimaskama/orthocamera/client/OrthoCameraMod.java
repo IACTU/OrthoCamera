@@ -111,11 +111,6 @@ public class OrthoCameraMod {
         CONFIG.saveIfDirty();
     }
 
-//    @Override
-//    public void onInitializeClient() {
-//        ClientLifecycleEvents.CLIENT_STOPPING.register(this::onClientStopping);
-//    }
-//
     private void handleInput() {
         Minecraft instance = Minecraft.getInstance();
         boolean messageSent = false;
@@ -184,18 +179,13 @@ public class OrthoCameraMod {
             if (optionalOrthoCameraModContainer.isPresent()) {
                 Optional<IConfigScreenFactory> optionalConfigScreenFactory = optionalOrthoCameraModContainer.get().getCustomExtension(IConfigScreenFactory.class);
                 if (optionalConfigScreenFactory.isPresent()) {
+                    CONFIG.saveIfDirty();
                     Screen configScreen = optionalConfigScreenFactory.get().createScreen(optionalOrthoCameraModContainer.get(), instance.screen);
                     instance.setScreen(configScreen);   // TODO for some reason when you close the screen, your mouse input isn't captured automatically again
                 }
             }
         }
     }
-//
-//    private void onClientStopping(Minecraft minecraft) {
-//        if (CONFIG.isDirty()) {
-//            CONFIG.save();
-//        }
-//    }
 
     public static Matrix4f createOrthoMatrix(float delta, float minScale) { // TODO should I cache this?
         Minecraft minecraft = Minecraft.getInstance();

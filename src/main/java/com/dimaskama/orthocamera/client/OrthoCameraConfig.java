@@ -99,7 +99,18 @@ public class OrthoCameraConfig {
     }
 
     public void save() {
-        // TODO
+        ENABLED.set(enabled);
+        SAVE_ENABLED_STATE.set(save_enabled_state);
+        SCALE_X.set((double) scale_x);
+        SCALE_Y.set((double) scale_y);
+        MIN_DISTANCE.set((double) min_distance);
+        MAX_DISTANCE.set((double) max_distance);
+        FIXED.set(fixed);
+        FIXED_YAW.set((double) fixed_yaw);
+        FIXED_PITCH.set((double) fixed_pitch);
+        FIXED_ROTATE_SPEED_X.set((double) fixed_rotate_speed_x);
+        FIXED_ROTATE_SPEED_Y.set((double) fixed_rotate_speed_y);
+        AUTO_THIRD_PERSON.set(auto_third_person);
     }
 
     public void saveIfDirty() {
